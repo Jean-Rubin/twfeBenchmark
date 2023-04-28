@@ -1,0 +1,15 @@
+Package: twfeBenchmark
+Type: Package
+Title: Benchmarking Application of Two-Way Fixed Effect Estimators
+Version: 0.1.0
+Author: Jean Rubin
+Maintainer: Jean Rubin <jean.rubin@insee.fr>
+Description: An exploration tool to make sense of Two-Way Fixed Effect estimation.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    gt,
+    gtsummary,
+    shiny
+RoxygenNote: 7.2.3
