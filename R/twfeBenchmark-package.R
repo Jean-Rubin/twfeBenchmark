@@ -9,6 +9,5 @@
 #' @name twfeBenchmark
 #' @docType package
 #' @keywords internal
-#' @import ggplot2 grid scales grDevices shiny
-#' @importFrom dplyr mutate left_join
+#' @import shiny ggplot2 dplyr grid scales grDevices
 "_PACKAGE"

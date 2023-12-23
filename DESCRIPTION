@@ -11,5 +11,7 @@ LazyData: true
 Imports: 
     gt,
     gtsummary,
-    shiny
-RoxygenNote: 7.2.3
+    purrr,
+    shiny,
+    tidyr
+RoxygenNote: 7.2.1
