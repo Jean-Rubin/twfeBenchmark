@@ -1,20 +1,20 @@
 dataParameters_UI <- function(
     id,
-    group_size_default = 1,
+    size_default = 1,
     base_gap_default = 3,
     event_default = 5,
-    permanent_effect_default = 2,
+    permanent_effect_default = 5,
     ponctual_effect_default = 0,
     slope_effect_default = 0
 ) {
   ns <- NS(id)
   tagList(
     sliderInput(
-      ns("group_size"),
+      ns("size"),
       "Group size",
       min = 1,
       max = 5,
-      value = group_size_default
+      value = size_default
     ),
     sliderInput(
       ns("base_gap"),
@@ -59,13 +59,13 @@ dataParameters_UI <- function(
 
 dataParameters_Server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    list(
-      group_size = reactive(input$group_size),
-      event = reactive(input$event),
-      base_gap = reactive(input$base_gap),
-      permanent_effect = reactive(input$permanent_effect),
-      ponctual_effect = reactive(input$ponctual_effect),
-      slope_effect = reactive(input$slope_effect)
-    )
+    reactive(list(
+      size = input$size,
+      event = input$event,
+      base_gap = input$base_gap,
+      permanent_effect = input$permanent_effect,
+      ponctual_effect = input$ponctual_effect,
+      slope_effect = input$slope_effect
+    ))
   })
 }

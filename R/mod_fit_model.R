@@ -27,15 +27,17 @@ model_UI <- function(id) {
     ),
     tabPanel(
       "Interaction-Weighted",
-      sidebarPanel(
-        "Formula: ",
+      sidebarLayout(
+        sidebarPanel(
+          "Formula: ",
           p(
-            "$$y_{it} = \\alpha_i + \\alpha_t + \\sum_{e \\notin \\{+\\infty\\}} \\sum_{l = -9}^9 \\beta_{e,l}\\mathbf{1}(E_i = e)D_{it}^l + \\varepsilon_{it}$$",
+            "$$y_{it} = \\alpha_i + \\alpha_t + \\sum_{e \\notin \\{+\\infty\\}} \\sum_{l = -9}^9 \\beta_{e,l}\\mathbf{1}(E_i = e)D_{it}^l + \\varepsilon_{it}$$", # nolint
             style = "overflow: auto;"
           ),
           actionButton(ns("fit_model_iw"), "Fit model")
         ),
         mainPanel(gt::gt_output(ns("model_formula_iw")))
+      )
     )
   )
 }

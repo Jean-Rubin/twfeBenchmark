@@ -1,0 +1,99 @@
+---
+title: "Theory behind Two-way Fixed Effects Regression Models"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Theory behind Two-way Fixed Effects Regression Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
+library(twfeBenchmark)
+```
+
+## Global overview of the recent literature
+
+
+Difference in Difference is one of the most common strategy for estimating causal effects.
+Linear regression with period and group fixed effects were widely used in the literature as an attempt to generalize this basic estimator for situations with multiple treatments, dynamic effects, etc...
+Recent works in the literature have tried to analyse the theoretical properties of these models.
+We recommend that you look at the survey done by @chaisemartin_haultfoeuille_twfe_survey_2023 if you want a global overview of that has been done.
+This vignette will be focused on the aspects of the theory that could be experimented in the application.
+
+## Goodman-Bacon decomposition
+
+The original DiD is computed using two groups and two periods ($2 \times 2$).
+To compute it, we simply have to compare the change in outcomes after the treatment of a group and compare it against the change in outcomes of a control group that was untreated at both period.
+It can also be estimated by the following regression, using a treatment group dummy $T_i$ and a post-treatment period dummy $P_t$ like so:
+$$
+Y_{it} = \mu + \alpha T_i + \gamma P_t + \beta^{2 \times 2}T_i P_t + \varepsilon_{it}
+$$
+
+A natural idea leading to two-way fixed effects, is that we would obtain the same DiD estimator if we used the following regression:
+$$
+Y_{it} = \alpha_i + \gamma_t + \beta^{DD}D_{it} + \varepsilon_{it}
+$$
+however, it is now possible to use this regression for groups being treated at different time, or even for non-discrete treatments.
+Can we interpret this $\beta^{DD}$ similarly to $\beta^{2 \times 2}$ ?
+
+@goodman-bacon_did_2021 is one of the first in attempting to give a better understanding of what this basic two-way fixed effect model estimates^[we stay in the situation where the treatment is binary and staggered].
+His main result is that we can interpret $\hat{\beta}^{DD}$ as a weighted sum of basic DiD estimators.
+More precisely, denote by $n_k$ the proportion of individuals in the group $k$, and $\overline{D}_k$ the proportion of time this group spends treated in the data.
+$$
+\hat{\beta}^{DD} = \sum_{k < l} s_{kl} \left[\mu_{kl} \hat{\beta}^{2 \times 2, k}_{kl} + (1 - \mu_{kl})\hat{\beta}_{kl}^{2 \times 2, l}\right]
+$$
+where we sorted groups by their time of treatment and
+
+$$
+\begin{align}
+  s_{kl} &\propto n_k n_l (\overline{D}_k - \overline{D}_l) (1 - (\overline{D}_k - \overline{D}_l)), \quad \sum_{k < l} s_{kl} = 1\\
+  \mu_{kl} &= \frac{1 - \overline{D}_k}{1 - (\overline{D}_k - \overline{D}_l)}
+\end{align}
+$$
+
+We consider here that the group $u$ of untreated individuals is like a group of individuals that are treated at an infinite horizon, and thus $\overline{D}_u = 0$.
+In particular, we obtain that $\mu_{ku} = 1$ and the term $\hat{\beta}_{ku}^{2 \times 2, u}$ is unimportant.
+
+Here, $\hat{\beta}_{kl}^{2 \times 2, k}$ corresponds to a basic DiD between groups $k$ and $l$, using $k$ as the treated group and $l$ as the control group^[to do so, we therefore only keep the dates before his treatment].
+This term can already be quite surprising because it means we don't always use $u$ as the control group.
+However it kind of make sense because $k$ is treated first.
+Thus at the time $k$ is treated, $l$ is among the not-yet treated.
+If we assume that there are no anticipations that would change $l$ outcomes before his treatment, you could legitimately argue that $l$ can be considered as a control group.
+
+The more surprising part is that there is also $\hat{\beta}_{kl}^{2 \times 2, l}$, using this time $l$ as the treated group and $k$ as the control group^[to do so, we therefore only keep the dates after his treatment].
+One situation where this could lead to problems is where $k$'s treatment has dynamic effects, i.e. when the effect change over time after his treatment.
+Even if the parallel trend assumption holded before $k$'s treatment, this dynamic effect would make the outcome path of $k$ unusable as a control group.
+In fact, this DiD could give a negative sign even if every treatments had positive effects on every groups.
+This is why these DiD can be described as "forbidden comparisons".
+
+Now what does the weights tell us ?
+$\mu_{kl}$ corresponds to the relative weights of the "allowed comparison" against the "forbidden comparison".
+We can rewrite it as 
+$$
+\mu_{kl} = \frac{1 - \overline{D}_k}{(1 - \overline{D}_k) + \overline{D}_l}
+$$
+where $1-\overline{D}_k$ is the share of pre-treatment time of group $k$, and $\overline{D}_l$ is the share of treatment time of group $l$.
+Thus, the later $k$ is treated and the later $l$ is treated, the higher is the weight of the "allowed comparison".
+
+Now if we want to compare global weights, we can compute 
+$$
+\begin{align}
+s_{kl}\mu_{kl} &\propto n_k n_l (1 - \overline{D}_k)(\overline{D}_k - \overline{D}_l)\\
+s_{kl}(1 - \mu_{kl}) &\propto n_k n_l (\overline{D}_k - \overline{D}_l)\overline{D}_l
+\end{align}
+$$
+and check that in both cases, the third and fourth terms correspond respectively to the share of pre-treatment time and post-treatment time of the considered DiD.
+
+Therefore we can conclude that the importance of a DiD will depend on two aspects of groups and periods sizes: 
+
+  - *Pure size*: the bigger the group sizes and the considered periods, the bigger the weight. 
+  - *Balance*: if the compared groups are roughly of the same size, and if the considered pre-treatment period and post-treatment period are roughly of the same size, the DiD will have a bigger weight.

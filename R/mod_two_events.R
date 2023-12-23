@@ -1,32 +1,30 @@
 twoEvents_UI <- function(id) {
   ns <- NS(id)
-  fluidRow(
-    sidebarLayout(
-      sidebarPanel(
-        h3("Parameters", style = "magin-top: 0;"),
-        tabsetPanel(
-          tabPanel("Control",
-            controlParameters_UI(ns("control_parameters"))
-          ),
-          tabPanel("Treated 1",
-            dataParameters_UI(ns("treated_parameters_1"),
-              base_gap_default = 5,
-              event_default = 3,
-              permanent_effect_default = 8
-            )
-          ),
-          tabPanel("Treated 2",
-            dataParameters_UI(ns("treated_parameters_2"),
-              event_default = 6
-            )
+  sidebarLayout(
+    sidebarPanel(
+      h3("Parameters", style = "margin-top: 0;"),
+      tabsetPanel(
+        tabPanel("Control",
+          controlParameters_UI(ns("control_parameters"))
+        ),
+        tabPanel("Treated 1",
+          dataParameters_UI(ns("treated_parameters_1"),
+            base_gap_default = 5,
+            event_default = 3,
+            permanent_effect_default = 8
+          )
+        ),
+        tabPanel("Treated 2",
+          dataParameters_UI(ns("treated_parameters_2"),
+            event_default = 6
           )
         )
-      ),
-      mainPanel(
-        plotOutput(ns("event_plot")),
-        h3("Goodman-Bacon Decomposition"),
-        uiOutput(ns("analytic_decomposition"))
       )
+    ),
+    mainPanel(
+      plotOutput(ns("event_plot")),
+      h3("Goodman-Bacon Decomposition"),
+      uiOutput(ns("analytic_decomposition"))
     )
   )
 }
@@ -43,10 +41,10 @@ twoEvents_Server <- function(id) {
     data_event <- reactive(
       bind_rows(
         generate_group(
-          name = "Never treated",
+          name = "control",
           timeline = timeline,
           event = +Inf,
-          group_size = control_group$control_size(),
+          size = control_group$size(),
           common_trend = control_group$common_trend(),
           base_gap = 0,
           permanent_effect = 0,
@@ -54,10 +52,10 @@ twoEvents_Server <- function(id) {
           slope_effect = 0
         ),
         generate_group(
-          name = "Treated 1",
+          name = "treated_1",
           timeline = timeline,
           event = treated_groups[[1]]$event(),
-          group_size = treated_groups[[1]]$group_size(),
+          size = treated_groups[[1]]$size(),
           common_trend = control_group$common_trend(),
           base_gap = treated_groups[[1]]$base_gap(),
           permanent_effect = treated_groups[[1]]$permanent_effect(),
@@ -65,10 +63,10 @@ twoEvents_Server <- function(id) {
           slope_effect = treated_groups[[1]]$slope_effect()
         ),
         generate_group(
-          name = "Treated 2",
+          name = "treated_2",
           timeline = timeline,
           event = treated_groups[[2]]$event(),
-          group_size = treated_groups[[2]]$group_size(),
+          size = treated_groups[[2]]$size(),
           common_trend = control_group$common_trend(),
           base_gap = treated_groups[[2]]$base_gap(),
           permanent_effect = treated_groups[[2]]$permanent_effect(),
@@ -80,13 +78,13 @@ twoEvents_Server <- function(id) {
 
     nb_times <- length(timeline)
     n_tot <- reactive(
-      treated_groups[[1]]$group_size() +
-      treated_groups[[2]]$group_size() +
-      control_group$control_size()
+      treated_groups[[1]]$size() +
+      treated_groups[[2]]$size() +
+      control_group$size()
     )
-    n_u <- reactive(control_group$control_size() / n_tot())
-    n_1 <- reactive(treated_groups[[1]]$group_size() / n_tot())
-    n_2 <- reactive(treated_groups[[2]]$group_size() / n_tot())
+    n_u <- reactive(control_group$size() / n_tot())
+    n_1 <- reactive(treated_groups[[1]]$size() / n_tot())
+    n_2 <- reactive(treated_groups[[2]]$size() / n_tot())
     n_1u <- reactive(n_1() / (n_1() + n_u()))
     n_2u <- reactive(n_2() / (n_2() + n_u()))
     n_12 <- reactive(n_1() / (n_1() + n_2()))
@@ -127,7 +125,7 @@ twoEvents_Server <- function(id) {
     beta_1u <- reactive({
       did_estimate(
         data_event(),
-        list(treated = "Treated 1", control = "Never treated"),
+        list(treated = "treated_1", control = "control"),
         treated_groups[[1]]$event()
       )
     })
@@ -135,7 +133,7 @@ twoEvents_Server <- function(id) {
     beta_2u <- reactive({
       did_estimate(
         data_event(),
-        list(treated = "Treated 2", control = "Never treated"),
+        list(treated = "treated_2", control = "control"),
         treated_groups[[2]]$event()
       )
     })
@@ -143,7 +141,7 @@ twoEvents_Server <- function(id) {
     beta_12_1 <- reactive({
       did_estimate(
         data_event() |> filter(t < treated_groups[[2]]$event()),
-        list(treated = "Treated 1", control = "Treated 2"),
+        list(treated = "treated_1", control = "treated_2"),
         treated_groups[[1]]$event()
       )
     })
@@ -151,7 +149,7 @@ twoEvents_Server <- function(id) {
     beta_12_2 <- reactive({
       did_estimate(
         data_event() |> filter(t >= treated_groups[[1]]$event()),
-        list(treated = "Treated 2", control = "Treated 1"),
+        list(treated = "treated_2", control = "treated_1"),
         treated_groups[[2]]$event()
       )
     })
@@ -184,7 +182,7 @@ twoEvents_Server <- function(id) {
 
     output$event_plot <- renderPlot({
       plot_data(
-        data_event(),
+        pp_table(data_event()),
         c(treated_groups[[1]]$event(), treated_groups[[2]]$event()),
         timeline
       )

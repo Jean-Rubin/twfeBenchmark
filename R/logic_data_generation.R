@@ -3,7 +3,7 @@ generate_group <- function(
   timeline,
   event,
   common_trend,
-  group_size = 1,
+  size = 1,
   base_gap = 0,
   permanent_effect = 0,
   ponctual_effect = 0,
@@ -20,6 +20,39 @@ generate_group <- function(
       permanent_effect * (t >= event) +
       ponctual_effect * (t == event),
     treated = as.numeric(t >= event),
-    group_size = group_size
+    size = size
+  )
+}
+
+generate_data_event <- function(
+  control_group,
+  treated_groups,
+  timeline
+) {
+  bind_rows(
+    generate_group(
+      name = "control",
+      timeline = timeline,
+      event = +Inf,
+      size = control_group$size,
+      common_trend = control_group$common_trend,
+      base_gap = 0,
+      permanent_effect = 0,
+      ponctual_effect = 0,
+      slope_effect = 0
+    ),
+    purrr::imap(treated_groups, function(treated_group, i) {
+      generate_group(
+        name = paste("treated", i, sep = "_"),
+        timeline = timeline,
+        event = treated_group$event,
+        size = treated_group$size,
+        common_trend = control_group$common_trend,
+        base_gap = treated_group$base_gap,
+        permanent_effect = treated_group$permanent_effect,
+        ponctual_effect = treated_group$ponctual_effect,
+        slope_effect = treated_group$slope_effect
+      )
+    })
   )
 }

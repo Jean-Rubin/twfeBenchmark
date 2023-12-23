@@ -13,5 +13,12 @@ Imports:
     gtsummary,
     purrr,
     shiny,
+    shinyjs,
     tidyr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+VignetteBuilder: knitr

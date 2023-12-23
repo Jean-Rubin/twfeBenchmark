@@ -2,7 +2,7 @@
 
 #' Run the main shiny application
 #'
-#' @param ...
+#' @inheritDotParams shiny::shinyApp -ui -server
 #'
 #' @export
 #'
@@ -10,12 +10,21 @@
 #' \dontrun{run_twfe_app()}
 run_twfe_app <- function(...) {
   ui <- fluidPage(
+    shinyjs::useShinyjs(),
     withMathJaxLocal(),
     titlePanel("Two-Way Fixed Effect Estimator"),
     tabsetPanel(id = "parameters_tabset",
-      tabPanel("Basic", basic_UI("basic")),
-      tabPanel("Two Events", twoEvents_UI("two_events")),
-      tabPanel("Multi Events", multiEvents_UI("multi_events")),
+      tabPanel("Presets", presets_UI("presets")),
+      tabPanel("Set Parameters",
+        sidebarLayout(
+          sidebarPanel(
+            h3("Parameters", style = "margin-top: 0;"),
+            multiParameters_UI("parameters")
+          ),
+          mainPanel(plotOutput("event_plot"))
+        ),
+        value = "set_parameters"
+      ),
       tabPanel("Debug: Data Generated",
         column(6,
           h3("Data event group"),
@@ -24,40 +33,60 @@ run_twfe_app <- function(...) {
         column(6,
           h3("Data individual"),
           tableOutput("data_ind_table")
-        )
+        ),
+        h3("Parameters"),
+        tableOutput("params_table")
       )
     ),
     h2("Model"),
-    model_UI("model")
+    div(
+      tabsetPanel(id = "model_tabset",
+        tabPanel("Theory", theory_UI("theory")),
+        tabPanel("Regression", model_UI("model"))
+      ),
+      style = "margin-bottom: 20vh;"
+    )
   )
 
   server <- function(input, output, session) {
-    data_events <- list(
-      basic_Server("basic"),
-      twoEvents_Server("two_events"),
-      multiEvents_Server("multi_events")
-    )
+    timeline <- seq(0L, 10L)
+    params_group <- multiParameters_Server("parameters", timeline)
+    presets_Server("presets", session)
 
-    data_event <- reactiveVal()
-    observe({
-      if (input$parameters_tabset == "Basic") {
-        data_event(data_events[[1]]())
-      } else if (input$parameters_tabset == "Two Events") {
-        data_event(data_events[[2]]())
-      } else if (input$parameters_tabset == "Multi Events") {
-        data_event(data_events[[3]]())
-      }
+    data_event <- reactive({
+      generate_data_event(
+        control_group = params_group()$control,
+        treated_groups = params_group()$treated,
+        timeline = timeline
+      )
     })
 
     data_ind <- reactive({
       data_event() |>
-        tidyr::uncount(group_size, .id = "num") |>
+        tidyr::uncount(size, .id = "num") |>
         mutate(ind = paste(group, num, sep = "_"))
     })
 
     output$data_event_table <- renderTable(data_event())
     output$data_ind_table <- renderTable(data_ind())
+    output$params_table <- renderTable(bind_rows(params_group()))
 
+    treated_events <- reactive({
+      purrr::map(
+        params_group()$treated,
+        \(treated_group) treated_group$event
+      ) |> purrr::flatten_int()
+    })
+
+    output$event_plot <- renderPlot({
+      plot_data(
+        pp_table(data_event()),
+        treated_events(),
+        timeline
+      )
+    })
+
+    theory_Server("theory", params_group, data_event)
     model_Server("model", data_ind)
   }
 

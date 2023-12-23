@@ -1,14 +1,12 @@
 multiEvents_UI <- function(id) {
   ns <- NS(id)
-  fluidRow(
-    sidebarLayout(
-      sidebarPanel(
-        h3("Parameters", style = "magin-top: 0;"),
-        multiParameters_UI(ns("parameters")),
-      ),
-      mainPanel(
-        plotOutput(ns("event_plot"))
-      )
+  sidebarLayout(
+    sidebarPanel(
+      h3("Parameters", style = "margin-top: 0;"),
+      multiParameters_UI(ns("parameters"))
+    ),
+    mainPanel(
+      plotOutput(ns("event_plot"))
     )
   )
 }
@@ -23,10 +21,10 @@ multiEvents_Server <- function(id) {
     data_event <- reactive({
       bind_rows(
         generate_group(
-          name = "Never treated",
+          name = "control",
           timeline = timeline,
           event = +Inf,
-          group_size = control_group$control_size(),
+          size = control_group$size(),
           common_trend = control_group$common_trend(),
           base_gap = 0,
           permanent_effect = 0,
@@ -35,10 +33,10 @@ multiEvents_Server <- function(id) {
         ),
         purrr::imap(treated_groups(), function(treated_group, i) {
           generate_group(
-            name = paste("Treated", i),
+            name = paste("treated", i, sep = "_"),
             timeline = timeline,
             event = treated_group$event(),
-            group_size = treated_group$group_size(),
+            size = treated_group$size(),
             common_trend = control_group$common_trend(),
             base_gap = treated_group$base_gap(),
             permanent_effect = treated_group$permanent_effect(),
@@ -57,7 +55,7 @@ multiEvents_Server <- function(id) {
 
     output$event_plot <- renderPlot({
       plot_data(
-        data_event(),
+        pp_table(data_event()),
         treated_events(),
         timeline
       )

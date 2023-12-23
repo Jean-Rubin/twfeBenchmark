@@ -1,0 +1,30 @@
+url: ~
+template:
+  bootstrap: 5
+  bootswatch: litera
+  lang: en
+
+reference:
+  - title: Exposed functions
+    desc: >
+      Functions for users.
+    contents:
+      - run_twfe_app
+
+  - title: Internal functions
+    desc: >
+      Functions for developers. Users don't need to know about these details.
+
+  - subtitle: Maths
+    desc: >
+      Math helpers.
+    contents:
+      - min_max
+
+  - subtitle: Display
+    desc: >
+      For alternating between internal and external display.
+    contents:
+      - pp_col
+      - unpp_col
+

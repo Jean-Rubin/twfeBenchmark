@@ -5,7 +5,7 @@ multiParameters_UI <- function(id) {
       "Add Treated", class = "btn-success", icon = icon("plus")
     ),
     actionButton(ns("reset_treated"),
-      "Remove All Treated", class = "btn-danger", icon = icon("refresh")
+      "Remove All Treated", class = "btn-danger", icon = icon("sync")
     ),
     tabsetPanel(id = ns("parameters"),
       tabPanel("Control", value = "tab_control",
@@ -15,14 +15,15 @@ multiParameters_UI <- function(id) {
   )
 }
 
-multiParameters_Server <- function(id) {
+multiParameters_Server <- function(id, timeline, max_treated = 10L) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    timeline <- seq(0L, 10L)
-    max_treated <- 10L
     treated_id_pool <- reactiveVal(seq_len(max_treated))
     treated_ids <- reactive(setdiff(seq_len(max_treated), treated_id_pool()))
     ns_treated <- function(id, n) paste0(id, "_treated_", n)
+    data_parameters <- purrr::map(seq_len(max_treated), function(n) {
+      dataParameters_Server(ns_treated("params", n))
+    })
 
     # Add treatment group
     observe({
@@ -63,15 +64,12 @@ multiParameters_Server <- function(id) {
 
     control_group <- controlParameters_Server("control_parameters", timeline)
     treated_groups <- reactive({
-      purrr::map(treated_ids(), function(n) {
-        dataParameters_Server(ns_treated("params", n))
-      })
+      purrr::map(treated_ids(), function(n) data_parameters[[n]]())
     })
 
-
-    list(
-      control = control_group,
-      treated = treated_groups
-    )
+    reactive(list(
+      control = control_group(),
+      treated = treated_groups()
+    ))
   })
 }

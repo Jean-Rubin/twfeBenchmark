@@ -5,8 +5,8 @@ plot_data <- function(data_event, treated_events, timeline) {
       t,
       y,
       colour = group,
-      linewidth = compute_linewidth(group_size),
-      size = compute_size(group_size)
+      linewidth = compute_linewidth(size),
+      size = compute_size(size)
     )
   ) +
     geom_line() +
@@ -25,10 +25,10 @@ plot_data <- function(data_event, treated_events, timeline) {
     )
 }
 
-compute_linewidth <- function(group_size) {
-  0.5 + (group_size - 1) / 4
+compute_linewidth <- function(size) {
+  0.5 + (size - 1) / 4
 }
 
-compute_size <- function(group_size) {
-  2 + 2 * (group_size - 1) / 4
+compute_size <- function(size) {
+  2 + 2 * (size - 1) / 4
 }

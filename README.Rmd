@@ -18,16 +18,31 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of twfeBenchmark is to provide an exploration tool for understanding
-two-way fixed effect estimations.
+The goal of twfeBenchmark is to provide a Shiny application as an exploration tool for understanding two-way fixed effect estimations.
+By letting people experiment with small designs, we hope that they will have a better understanding of the recent results in the literature.
+Indeed, although these types of models were widely used in the literature as a causal analysis tool, the basic ones have multiple limitations that could yield to misleading results.
 
-## Example
+## Install and Run the app
 
-You can clone the project, and run:
+You can clone the project, and run in the R console:
 
-```{r example, eval=FALSE}
-devtools::load_all() # this should load all the functions inside the project
-twfeBenchmark::run_twfe_app() # This will launch the Shiny App
+```{r example, eval = FALSE}
+# Option 1:
+#   Use this command if you don't want to install the project as a package.
+#   This should load all the functions of the project.
+devtools::load_all()
+
+# Option 2
+#   Use this command if you want to install the project as a package.
+#   Only some of the functions of the project will be exposed.
+devtools::install()
+
+# This will launch the Shiny App
+twfeBenchmark::run_twfe_app()
 ```
 
 This should launch a Shiny application and open an interactive window.
+
+## Learning more
+
+More details about the theory and the content of the app can be seen in the vignettes.
