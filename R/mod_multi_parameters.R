@@ -15,7 +15,7 @@ multiParameters_UI <- function(id) {
   )
 }
 
-multiParameters_Server <- function(id, timeline, max_treated = 10L) {
+multiParameters_Server <- function(id, max_treated = 10L) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     treated_id_pool <- reactiveVal(seq_len(max_treated))
@@ -62,7 +62,7 @@ multiParameters_Server <- function(id, timeline, max_treated = 10L) {
       bindEvent(input$reset_treated)
 
 
-    control_group <- controlParameters_Server("control_parameters", timeline)
+    control_group <- controlParameters_Server("control_parameters")
     treated_groups <- reactive({
       purrr::map(treated_ids(), function(n) data_parameters[[n]]())
     })

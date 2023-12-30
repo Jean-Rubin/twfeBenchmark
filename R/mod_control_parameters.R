@@ -44,19 +44,19 @@ controlParameters_UI <- function(id) {
   )
 }
 
-controlParameters_Server <- function(id, timeline) {
+controlParameters_Server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    normalized_timeline <- 2 * pi * timeline / max(timeline)
     reactive(list(
       size = input$size,
-      slope_trend = input$slope_trend,
-      quadratic_trend = input$quadratic_trend,
-      oscillation_amplitude_trend = input$oscillation_amplitude_trend,
-      oscillation_frequency_trend = input$oscillation_frequency_trend,
-      common_trend = input$slope_trend * timeline +
-        input$quadratic_trend * timeline^2 +
+      event = Inf,
+      y = function(t, ...) {
+        normalized_t <- 2 * pi * t / max(t)
+
+        input$slope_trend * t +
+        input$quadratic_trend * t^2 +
         input$oscillation_amplitude_trend *
-        sin(input$oscillation_frequency_trend * normalized_timeline)
+        sin(input$oscillation_frequency_trend * normalized_t)
+      }
     ))
   })
 }

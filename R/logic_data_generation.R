@@ -1,26 +1,20 @@
 generate_group <- function(
   name,
-  timeline,
+  size,
   event,
+  timeline,
   common_trend,
-  size = 1,
-  base_gap = 0,
-  permanent_effect = 0,
-  ponctual_effect = 0,
-  slope_effect = 0
+  y
 ) {
   if (is.null(event)) return(tibble())
 
   tibble(
     group = name,
+    size = size,
     event = event,
     t = timeline,
-    y = common_trend + base_gap +
-      slope_effect * pmax.int(t - event, 0) +
-      permanent_effect * (t >= event) +
-      ponctual_effect * (t == event),
     treated = as.numeric(t >= event),
-    size = size
+    y = common_trend + y(t, event = event)
   )
 }
 
@@ -29,29 +23,25 @@ generate_data_event <- function(
   treated_groups,
   timeline
 ) {
+  common_trend <- control_group$y(timeline)
+
   bind_rows(
     generate_group(
       name = "control",
-      timeline = timeline,
-      event = +Inf,
       size = control_group$size,
-      common_trend = control_group$common_trend,
-      base_gap = 0,
-      permanent_effect = 0,
-      ponctual_effect = 0,
-      slope_effect = 0
+      event = control_group$event,
+      timeline = timeline,
+      common_trend = 0,
+      y = control_group$y
     ),
     purrr::imap(treated_groups, function(treated_group, i) {
       generate_group(
         name = paste("treated", i, sep = "_"),
-        timeline = timeline,
-        event = treated_group$event,
         size = treated_group$size,
-        common_trend = control_group$common_trend,
-        base_gap = treated_group$base_gap,
-        permanent_effect = treated_group$permanent_effect,
-        ponctual_effect = treated_group$ponctual_effect,
-        slope_effect = treated_group$slope_effect
+        event = treated_group$event,
+        timeline = timeline,
+        common_trend = common_trend,
+        y = treated_group$y
       )
     })
   )

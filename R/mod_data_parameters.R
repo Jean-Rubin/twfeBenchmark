@@ -62,10 +62,12 @@ dataParameters_Server <- function(id) {
     reactive(list(
       size = input$size,
       event = input$event,
-      base_gap = input$base_gap,
-      permanent_effect = input$permanent_effect,
-      ponctual_effect = input$ponctual_effect,
-      slope_effect = input$slope_effect
+      y = function(t, event, ...) {
+        input$base_gap +
+        input$slope_effect * pmax.int(t - event, 0) +
+        input$permanent_effect * (t >= event) +
+        input$ponctual_effect * (t == event)
+      }
     ))
   })
 }

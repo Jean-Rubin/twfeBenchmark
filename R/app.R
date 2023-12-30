@@ -50,7 +50,8 @@ run_twfe_app <- function(...) {
 
   server <- function(input, output, session) {
     timeline <- seq(0L, 10L)
-    params_group <- multiParameters_Server("parameters", timeline)
+    params_group <- multiParameters_Server("parameters", max_treated = 10L)
+    reactive(print(params_group()))
     presets_Server("presets", session)
 
     data_event <- reactive({
