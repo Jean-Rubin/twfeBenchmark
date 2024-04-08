@@ -13,7 +13,7 @@ multiEvents_UI <- function(id) {
 
 multiEvents_Server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    timeline <- seq(0L, 10L)
+    timeline <- session$userData$timeline
     params_groups <- multiParameters_Server("parameters")
     control_group <- params_groups$control
     treated_groups <- reactive(params_groups$treated())

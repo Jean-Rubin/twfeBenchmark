@@ -33,9 +33,7 @@ run_twfe_app <- function(...) {
         column(6,
           h3("Data individual"),
           tableOutput("data_ind_table")
-        ),
-        h3("Parameters"),
-        tableOutput("params_table")
+        )
       )
     ),
     h2("Model"),
@@ -49,16 +47,23 @@ run_twfe_app <- function(...) {
   )
 
   server <- function(input, output, session) {
-    timeline <- seq(0L, 10L)
+    session$userData$timeline <- seq(0L, 10L)
     params_group <- multiParameters_Server("parameters", max_treated = 10L)
-    reactive(print(params_group()))
+    params_group_flat <- reactive({
+      treated <- params_group()$treated
+      append(
+        list(control = params_group()$control),
+        purrr::set_names(treated, paste0("treated_", seq_along(treated)))
+      )
+    })
+
     presets_Server("presets", session)
 
     data_event <- reactive({
       generate_data_event(
         control_group = params_group()$control,
         treated_groups = params_group()$treated,
-        timeline = timeline
+        timeline = session$userData$timeline
       )
     })
 
@@ -70,7 +75,6 @@ run_twfe_app <- function(...) {
 
     output$data_event_table <- renderTable(data_event())
     output$data_ind_table <- renderTable(data_ind())
-    output$params_table <- renderTable(bind_rows(params_group()))
 
     treated_events <- reactive({
       purrr::map(
@@ -83,11 +87,11 @@ run_twfe_app <- function(...) {
       plot_data(
         pp_table(data_event()),
         treated_events(),
-        timeline
+        session$userData$timeline
       )
     })
 
-    theory_Server("theory", params_group, data_event)
+    theory_Server("theory", params_group_flat, data_event)
     model_Server("model", data_ind)
   }
 
