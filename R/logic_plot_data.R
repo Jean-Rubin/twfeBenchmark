@@ -16,7 +16,7 @@ plot_data <- function(data_event, treated_events, timeline) {
     scale_x_continuous(breaks = timeline) +
     scale_continuous_identity(aesthetics = "linewidth") +
     scale_size_identity() +
-    coord_cartesian(xlim = c(0, 10), ylim = c(-10, 30)) +
+    coord_cartesian(xlim = range(timeline), ylim = c(-10, 30)) +
     labs(x = "Time", y = "Outcome", colour = "Group") +
     theme_bw() +
     theme(

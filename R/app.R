@@ -47,7 +47,7 @@ run_twfe_app <- function(...) {
   )
 
   server <- function(input, output, session) {
-    timeline <- seq(0L, 10L)
+    session$userData$timeline <- seq(0L, 10L)
     params_group <- multiParameters_Server("parameters", max_treated = 10L)
     params_group_flat <- reactive({
       treated <- params_group()$treated
@@ -63,7 +63,7 @@ run_twfe_app <- function(...) {
       generate_data_event(
         control_group = params_group()$control,
         treated_groups = params_group()$treated,
-        timeline = timeline
+        timeline = session$userData$timeline
       )
     })
 
@@ -87,7 +87,7 @@ run_twfe_app <- function(...) {
       plot_data(
         pp_table(data_event()),
         treated_events(),
-        timeline
+        session$userData$timeline
       )
     })
 
