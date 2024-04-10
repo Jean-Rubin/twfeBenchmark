@@ -2,8 +2,8 @@
 % Please edit documentation in R/twfeBenchmark-package.R
 \docType{package}
 \name{twfeBenchmark}
-\alias{twfeBenchmark}
 \alias{twfeBenchmark-package}
+\alias{twfeBenchmark}
 \title{Shiny Application Visualizing Two-Way Fixed Effect Estimations}
 \description{
 This is an exploration tool allowing to understand the underlying assumptions
