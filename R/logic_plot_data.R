@@ -18,11 +18,7 @@ plot_data <- function(data_event, treated_events, timeline) {
     scale_size_identity() +
     coord_cartesian(xlim = range(timeline), ylim = c(-10, 30)) +
     labs(x = "Time", y = "Outcome", colour = "Group") +
-    theme_bw() +
-    theme(
-      legend.position = "bottom",
-      text = element_text(size = 16)
-    )
+    theme_common()
 }
 
 compute_linewidth <- function(size) {
@@ -31,4 +27,12 @@ compute_linewidth <- function(size) {
 
 compute_size <- function(size) {
   2 + 2 * (size - 1) / 4
+}
+
+theme_common <- function() {
+  theme_bw() +
+    theme(
+      legend.position = "bottom",
+      text = element_text(size = 16)
+    )
 }

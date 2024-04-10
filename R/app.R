@@ -54,7 +54,8 @@ run_twfe_app <- function(...) {
       append(
         list(control = params_group()$control),
         purrr::set_names(treated, paste0("treated_", seq_along(treated)))
-      )
+      ) |>
+        insert_name()
     })
 
     presets_Server("presets", session)
