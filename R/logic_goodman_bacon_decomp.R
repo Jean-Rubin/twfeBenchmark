@@ -9,7 +9,6 @@
 #' @param event Date of the treatment event.
 #'
 #' @return The Difference in Difference estimation of the treatment effect.
-#' @export
 #'
 #' @examples
 #' data <- data.frame(
@@ -46,7 +45,6 @@ did_estimate <- function(data, group_control, group_treated, event) {
 #'   decomposition for the DiD estimators:
 #'  - `s_12_1`: using `group_1` as the treated and `group_2` as the control.
 #'  - `s_12_2`: using `group_2` as the treated and `group_1` as the control.
-#' @export
 #'
 #' @examples
 #' goodman_bacon_coef(11, list(size = 5, event = 6), list(size = 1, event = 3))

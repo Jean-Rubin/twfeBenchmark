@@ -118,7 +118,7 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
     pp <- function(x, ...) formatC(x, digits = 2, ...)
 
     output$pairwise_analytic_decomposition_1 <- renderUI({
-      withMathJax(HTML(paste0(
+      withMathJaxLocal(HTML(paste0(
         "$$",
         "s_{12}^1 = ", pp(goodman_bacon_coefs()$s_12_1), "\\quad",
         "\\beta_{12}^1 = ", pp(goodman_bacon_did_estimates()$beta_12_1),
@@ -127,7 +127,7 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
     })
 
     output$pairwise_analytic_decomposition_2 <- renderUI({
-      withMathJax(HTML(paste0(
+      withMathJaxLocal(HTML(paste0(
         "$$",
         "s_{12}^2 = ", pp(goodman_bacon_coefs()$s_12_2), "\\quad",
         "\\beta_{12}^2 = ", pp(goodman_bacon_did_estimates()$beta_12_2),
@@ -172,7 +172,7 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
     })
 
     output$global_analytic_decomposition <- renderUI({
-      withMathJax(HTML(paste0(
+      withMathJaxLocal(HTML(paste0(
         "$$",
         "\\beta = \\sum_{k, l} s_{k,l}^k \\beta_{k,l}^{k} = ",
         goodman_bacon_df() |>
@@ -200,7 +200,7 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
     output$global_plot <- renderPlot({
       goodman_bacon_df() |>
       ggplot(aes(x = did_weight, y = did, colour = did_type)) +
-        geom_point(size = 8) +
+        geom_point(size = 6) +
         labs(
           x = "Weight",
           y = "DiD estimate",
