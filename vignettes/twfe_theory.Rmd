@@ -25,8 +25,8 @@ library(twfeBenchmark)
 
 Difference in Difference is one of the most common strategy for estimating causal effects.
 Linear regression with period and group fixed effects were widely used in the literature as an attempt to generalize this basic estimator for situations with multiple treatments, dynamic effects, etc...
-Recent works in the literature have tried to analyse the theoretical properties of these models.
-We recommend that you look at the survey done by @chaisemartin_haultfoeuille_twfe_survey_2023 if you want a global overview of that has been done.
+Recent works have tried to analyse the theoretical properties of these models.
+We recommend that you look at the survey done by @chaisemartin_haultfoeuille_twfe_survey_2023 if you want a global overview of what has been done.
 This vignette will be focused on the aspects of the theory that could be experimented in the application.
 
 ## Goodman-Bacon decomposition

@@ -15,11 +15,25 @@ reference:
     desc: >
       Functions for developers. Users don't need to know about these details.
 
+  - subtitle: Main logic
+    desc: >
+      Main logic functions.
+    contents:
+      - did_estimate
+      - goodman_bacon_coef
+      - compute_dcdh_weights
+
   - subtitle: Maths
     desc: >
       Math helpers.
     contents:
       - min_max
+
+  - subtitle: Utility
+    desc: >
+      Utility functions.
+    contents:
+      - insert_name
 
   - subtitle: Display
     desc: >
