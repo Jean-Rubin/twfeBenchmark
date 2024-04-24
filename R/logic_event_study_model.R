@@ -1,35 +1,32 @@
-event_study_model <- function(data_ind) {
+event_study_model <- function(data_ind, specification) {
   data_renamed <- data_ind |>
     mutate(
       "Individual FE" = ind,
-      "Temporal FE" = factor(t),
-      "Relative Time_-9" = as.numeric((t - event) == -9),
-      "Relative Time_-8" = as.numeric((t - event) == -8),
-      "Relative Time_-7" = as.numeric((t - event) == -7),
-      "Relative Time_-6" = as.numeric((t - event) == -6),
-      "Relative Time_-5" = as.numeric((t - event) == -5),
-      "Relative Time_-4" = as.numeric((t - event) == -4),
-      "Relative Time_-3" = as.numeric((t - event) == -3),
-      "Relative Time_-2" = as.numeric((t - event) == -2),
-      "Relative Time_-1" = as.numeric((t - event) == -1),
-      "Relative Time_0" =  as.numeric((t - event) == 0),
-      "Relative Time_1" =  as.numeric((t - event) == 1),
-      "Relative Time_2" =  as.numeric((t - event) == 2),
-      "Relative Time_3" =  as.numeric((t - event) == 3),
-      "Relative Time_4" =  as.numeric((t - event) == 4),
-      "Relative Time_5" = as.numeric((t - event) == 5),
-      "Relative Time_6" = as.numeric((t - event) == 6),
-      "Relative Time_7" = as.numeric((t - event) == 7),
-      "Relative Time_8" = as.numeric((t - event) == 8),
-      "Relative Time_9" = as.numeric((t - event) == 9)
+      "Temporal FE" = factor(t)
     )
 
-  relative_time <- -9:9
-  relative_time_vars <- paste0("`Relative Time_", relative_time, "`")
+  relative_time <- as.numeric(specification$t_rel)
+  for (l in relative_time) {
+    data_renamed <- data_renamed |>
+      mutate(
+        "Relative Time {{l}}" := as.numeric((t - event) == l),
+      )
+  }
+  has_group <- length(specification$group) > 0
+  if (has_group) {
+    data_renamed <- data_renamed |>
+      mutate(
+        "Relative Time Group" = as.numeric((t - event) %in% specification$group)
+      )
+  }
+
+  relative_time_vars <- paste0("`Relative Time ", relative_time, "`")
 
   formula_char <- paste0(
-    "y ~ `Individual FE` + `Temporal FE` + ",
-    paste(relative_time_vars, collapse = " + ")
+    "y ~ ",
+    paste(relative_time_vars, collapse = " + "),
+    if (has_group) " + `Relative Time Group`" else "",
+    " + `Individual FE` + `Temporal FE`"
   )
 
   lm(formula_char, data = data_renamed)

@@ -5,7 +5,7 @@ model_UI <- function(id) {
       "Difference in Difference",
       sidebarLayout(
         sidebarPanel(
-          "Formula: $$y_{it} = \\alpha_i + \\alpha_t + \\beta^{DD}D_{it} + \\varepsilon_{it}$$",
+          "Formula: $$y_{it} = \\alpha_i + \\gamma_t + \\beta^{DD}D_{it} + \\varepsilon_{it}$$",
           actionButton(ns("fit_model"), "Fit model")
         ),
         mainPanel(gt::gt_output(ns("model_formula")))
@@ -17,9 +17,10 @@ model_UI <- function(id) {
         sidebarPanel(
           "Formula: ",
           div(
-            "$$y_{it} = \\alpha_i + \\alpha_t + \\sum_{l = -9}^9 \\beta_{l}D_{it}^l + \\varepsilon_{it}$$",
+            "$$y_{it} = \\alpha_i + \\gamma_t + \\sum_{g} \\mu_{g}\\mathbf{1}(t - E_i \\in g) + \\varepsilon_{it}$$",
             style = "overflow: auto;"
           ),
+          eventStudyParameters_UI(ns("params_model_event")),
           actionButton(ns("fit_model_event"), "Fit model")
         ),
         mainPanel(gt::gt_output(ns("model_formula_event")))
@@ -31,7 +32,7 @@ model_UI <- function(id) {
         sidebarPanel(
           "Formula: ",
           p(
-            "$$y_{it} = \\alpha_i + \\alpha_t + \\sum_{e \\notin \\{+\\infty\\}} \\sum_{l = -9}^9 \\beta_{e,l}\\mathbf{1}(E_i = e)D_{it}^l + \\varepsilon_{it}$$", # nolint
+            "$$y_{it} = \\alpha_i + \\gamma_t + \\sum_{e \\notin \\{+\\infty\\}} \\sum_{l} \\beta_{e,l}\\mathbf{1}(E_i = e)D_{it}^l + \\varepsilon_{it}$$", # nolint
             style = "overflow: auto;"
           ),
           actionButton(ns("fit_model_iw"), "Fit model")
@@ -44,6 +45,8 @@ model_UI <- function(id) {
 
 model_Server <- function(id, data_ind) {
   moduleServer(id, function(input, output, session) {
+    params_model_event <- eventStudyParameters_Server("params_model_event")
+
     model_fitted <- reactive({
       twfe_did_model(data_ind())
     })
@@ -56,7 +59,7 @@ model_Server <- function(id, data_ind) {
       bindEvent(input$fit_model)
 
     model_fitted_event <- reactive({
-      event_study_model(data_ind())
+      event_study_model(data_ind(), params_model_event())
     })
 
     output$model_formula_event <- gt::render_gt({
