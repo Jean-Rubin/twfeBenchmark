@@ -1,19 +1,19 @@
 #' Produce a table with de Chaisemartin and D'Haultfoeuille weights
 #'
 #' @param data A table with:
-#'  - `group` Id of the group (Primary key 1).
-#'  - `t` Time (Primary key 2).
-#'  - `size` Size of the group.
-#'  - `treated` Treatment value.
+#'  - `group`: id of the group (Primary key 1).
+#'  - `t`: time (Primary key 2).
+#'  - `size`: size of the group.
+#'  - `treated`: treatment value.
 #'
 #' @return A table with the same rows as `data` and with:
-#'  - `group` (Primary key 1).
-#'  - `t` (Primary key 2).
-#'  - `treated_group` mean treatment of group.
-#'  - `treated_t` mean treatment at time `t`.
-#'  - `treated_mean` global mean treatment.
-#'  - `eps` the residual of double demeaning.
-#'  - `w` the weights in the de Chaisemartin and D'Haultfoeuille decomposition.
+#'  - `group`: (Primary key 1).
+#'  - `t`: (Primary key 2).
+#'  - `treated_group`: mean treatment of group.
+#'  - `treated_t`: mean treatment at time `t`.
+#'  - `treated_mean`: global mean treatment.
+#'  - `eps`: residual of double demeaning.
+#'  - `w`: weight in the de Chaisemartin and D'Haultfoeuille decomposition.
 #'
 #' @examples
 #' data_ex <- data.frame(

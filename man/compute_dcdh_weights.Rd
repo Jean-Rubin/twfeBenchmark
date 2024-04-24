@@ -9,22 +9,22 @@ compute_dcdh_weights(data)
 \arguments{
 \item{data}{A table with:
 \itemize{
-\item \code{group} Id of the group (Primary key 1).
-\item \code{t} Time (Primary key 2).
-\item \code{size} Size of the group.
-\item \code{treated} Treatment value.
+\item \code{group}: id of the group (Primary key 1).
+\item \code{t}: time (Primary key 2).
+\item \code{size}: size of the group.
+\item \code{treated}: treatment value.
 }}
 }
 \value{
 A table with the same rows as \code{data} and with:
 \itemize{
-\item \code{group} (Primary key 1).
-\item \code{t} (Primary key 2).
-\item \code{treated_group} mean treatment of group.
-\item \code{treated_t} mean treatment at time \code{t}.
-\item \code{treated_mean} global mean treatment.
-\item \code{eps} the residual of double demeaning.
-\item \code{w} the weights in the de Chaisemartin and D'Haultfoeuille decomposition.
+\item \code{group}: (Primary key 1).
+\item \code{t}: (Primary key 2).
+\item \code{treated_group}: mean treatment of group.
+\item \code{treated_t}: mean treatment at time \code{t}.
+\item \code{treated_mean}: global mean treatment.
+\item \code{eps}: residual of double demeaning.
+\item \code{w}: weight in the de Chaisemartin and D'Haultfoeuille decomposition.
 }
 }
 \description{
