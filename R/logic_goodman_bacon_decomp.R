@@ -41,14 +41,21 @@ did_estimate <- function(data, group_control, group_treated, event) {
 #'  - `size`: size of the group.
 #'  - `event`: time of the treatment event (eventually infinite for a control).
 #'
-#' @return A list containing the non-normalized DiD weights in the Goodman-Bacon
+#' @return A list containing the various parameters in the Goodman-Bacon
 #'   decomposition for the DiD estimators:
-#'  - `s_12_1`: using `group_1` as the treated and `group_2` as the control.
-#'  - `s_12_2`: using `group_2` as the treated and `group_1` as the control.
+#'  - `d_1`: share of treatment time of `group_1`.
+#'  - `d_2`: share of treatment time of `group_2`.
+#'  - `n_12_1`: pure size effect of the DiD using `group_1` as the treated and `group_2` as the control.
+#'  - `n_12_2`: pure size effect of the DiD using `group_2` as the treated and `group_1` as the control.
+#'  - `v_n_12`: variance of the share of size between `group_1` and `group_2`.
+#'  - `v_d_12_1`: variance of the share of treatment time in the DiD using `group_1` as the treated and `group_2` as the control.
+#'  - `v_d_12_2`: variance of the share of treatment time in the DiD using `group_2` as the treated and `group_1` as the control.
+#'  - `s_12_1`: unnormalized DiD weights using `group_1` as the treated and `group_2` as the control.
+#'  - `s_12_2`: unnormalized DiD weights using `group_2` as the treated and `group_1` as the control.
 #'
 #' @examples
-#' goodman_bacon_coef(11, list(size = 5, event = 6), list(size = 1, event = 3))
-goodman_bacon_coef <- function(nb_times, group_1, group_2) {
+#' goodman_bacon_decomp_params(11, list(size = 5, event = 6), list(size = 1, event = 3))
+goodman_bacon_decomp_params <- function(nb_times, group_1, group_2) {
   n_1 <- group_1$size
   n_2 <- group_2$size
   n_12 <- n_1 / (n_1 + n_2)
@@ -60,13 +67,28 @@ goodman_bacon_coef <- function(nb_times, group_1, group_2) {
     d_1 <- 1 - d_1
     d_2 <- 1 - d_2
   }
-  v_12_1 <- n_12 * (1 - n_12) * (d_1 - d_2) * (1 - d_1) / (1 - d_2)^2
-  v_12_2 <- n_12 * (1 - n_12) * d_2 * (d_1 - d_2) / d_1^2
 
-  s_12_1 <- ((n_1 + n_2) * (1 - d_2))^2 * v_12_1
-  s_12_2 <-  ((n_1 + n_2) * d_1)^2 * v_12_2
+  v_n_12 <- n_12 * (1 - n_12) # variance of share size
+  v_d_12_1 <- (d_1 - d_2) * (1 - d_1) / (1 - d_2)^2 # variance of treatment, design 1
+  v_d_12_2 <- d_2 * (d_1 - d_2) / d_1^2 # variance of treatment, design 2
+
+  v_12_1 <- v_n_12 * v_d_12_1 # variance effect, design 1
+  v_12_2 <- v_n_12 * v_d_12_2 # variance effect, design 2
+
+  n_12_1 <- ((n_1 + n_2) * (1 - d_2))^2 # pure size effect, design 1
+  n_12_2 <- ((n_1 + n_2) * d_1)^2 # pure size effect, design 2
+
+  s_12_1 <- n_12_1 * v_12_1 # unnormalized DiD weight, design 1
+  s_12_2 <-  n_12_2 * v_12_2 # unnormalized DiD weight, design 2
 
   list(
+    d_1 = d_1,
+    d_2 = d_2,
+    n_12_1 = n_12_1,
+    n_12_2 = n_12_2,
+    v_n_12 = v_n_12,
+    v_d_12_1 = v_d_12_1,
+    v_d_12_2 = v_d_12_2,
     s_12_1 = s_12_1,
     s_12_2 = s_12_2
   )

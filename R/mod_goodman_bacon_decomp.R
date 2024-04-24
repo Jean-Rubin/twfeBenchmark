@@ -59,18 +59,30 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
       updateSelectInput(session, "select_group_2", choices = second_groups_name())
     })
 
-    group_1 <- reactive(unpp_col(input$select_group_1))
-    group_2 <- reactive(unpp_col(input$select_group_2))
-    params_group_1 <- reactive(params_group_flat()[[group_1()]])
-    params_group_2 <- reactive(params_group_flat()[[group_2()]])
+    group_1 <- reactive({
+      unpp_col(input$select_group_1)
+    })
+    group_2 <- reactive({
+      unpp_col(input$select_group_2)
+    })
 
+    params_group_1 <- reactive({
+      params_group_1 <- params_group_flat()[[group_1()]]
+      req(!is.null(params_group_1$size))
+      params_group_1
+    })
+    params_group_2 <- reactive({
+      params_group_2 <- params_group_flat()[[group_2()]]
+      req(!is.null(params_group_2$size))
+      params_group_2
+    })
+
+    missing_selection <- reactive({
+      is.null(input$select_group_1) || is.null(input$select_group_2)
+    })
 
     goodman_bacon_coefs <- reactive({
-      if (is.null(input$select_group_1) || is.null(input$select_group_2)) {
-        return()
-      }
-
-      goodman_bacon_coef(
+      goodman_bacon_decomp_params(
         length(timeline),
         params_group_1(),
         params_group_2()
@@ -78,10 +90,6 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
     })
 
     goodman_bacon_did_estimates <- reactive({
-      if (is.null(input$select_group_1) || is.null(input$select_group_2)) {
-        return()
-      }
-
       did_estimates(data_event(), params_group_1(), params_group_2())
     })
 
@@ -119,23 +127,38 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
 
     output$pairwise_analytic_decomposition_1 <- renderUI({
       withMathJaxLocal(HTML(paste0(
+        "$$\\overline{T}_1 = ", pp(1 - goodman_bacon_coefs()$d_2), "$$",
         "$$",
-        "s_{12}^1 = ", pp(goodman_bacon_coefs()$s_12_1), "\\quad",
-        "\\beta_{12}^1 = ", pp(goodman_bacon_did_estimates()$beta_12_1),
+        "\\begin{align*}",
+        "\\beta_{12}^1 &= ", pp(goodman_bacon_did_estimates()$beta_12_1), "\\\\",
+        "s_{12}^1 &= ", pp(goodman_bacon_coefs()$s_12_1), "\\\\",
+        "\\hline",
+        "\\big((n_1 + n_2) \\cdot \\overline{T}_1\\big)^2 &= ", pp(goodman_bacon_coefs()$n_12_1), "\\\\",
+        "n_{12} \\cdot (1 - n_{12}) &= ", pp(goodman_bacon_coefs()$v_n_12), "\\\\",
+        "\\frac{\\overline{D}_1^1}{\\overline{T}_1} \\cdot \\frac{\\overline{D}_2^1}{\\overline{T}_1} &= ", pp(goodman_bacon_coefs()$v_d_12_1), "\\\\",
+        "\\end{align*}",
         "$$"
       )))
     })
 
     output$pairwise_analytic_decomposition_2 <- renderUI({
       withMathJaxLocal(HTML(paste0(
+        "$$\\overline{T}_2 = ", pp(goodman_bacon_coefs()$d_1), "$$",
         "$$",
-        "s_{12}^2 = ", pp(goodman_bacon_coefs()$s_12_2), "\\quad",
-        "\\beta_{12}^2 = ", pp(goodman_bacon_did_estimates()$beta_12_2),
+        "\\begin{align*}",
+        "\\beta_{12}^2 &= ", pp(goodman_bacon_did_estimates()$beta_12_2), "\\\\",
+        "s_{12}^2 &= ", pp(goodman_bacon_coefs()$s_12_2), "\\\\",
+        "\\hline",
+        "\\big((n_1 + n_2) \\cdot \\overline{T}_2\\big)^2 &= ", pp(goodman_bacon_coefs()$n_12_2), "\\\\",
+        "n_{12} \\cdot (1 - n_{12}) &= ", pp(goodman_bacon_coefs()$v_n_12), "\\\\",
+        "\\frac{\\overline{D}_1^2}{\\overline{T}_2} \\cdot \\frac{\\overline{D}_2^2}{\\overline{T}_2} &= ", pp(goodman_bacon_coefs()$v_d_12_2), "\\\\",
+        "\\end{align*}",
         "$$"
       )))
     })
 
     goodman_bacon_df <- reactive({
+      req(length(groups_name()) > 1) # Need at least a treated group
       tidyr::crossing(
         group_1 = params_group_flat(),
         group_2 = params_group_flat()
@@ -155,26 +178,39 @@ goodmanBaconDecomp_Server <- function(id, params_group_flat, data_event) {
             group_1, group_2,
             \(x, y) did_estimates(data_event(), x, y)$beta_12_2
           ),
-          did_weight = purrr::map2_dbl(
+          goodman_bacon_coefs = purrr::map2(
             group_1, group_2,
-            \(x, y) goodman_bacon_coef(length(timeline), x, y)$s_12_2
+            \(x, y) {
+              res <- goodman_bacon_decomp_params(length(timeline), x, y)
+              list(
+                pure_size_coef = res$n_12_2,
+                variance_size_coef = res$v_n_12,
+                variance_treatment_coef = res$v_d_12_2,
+                did_coef = res$s_12_2
+              )
+            }
           )
         ) |>
+        tidyr::unnest_wider(goodman_bacon_coefs) |>
         mutate(
-          did_weight = did_weight / sum(did_weight),
+          did_weight = did_coef / sum(did_coef),
           did_type = case_when(
             group_1_name == "control" ~ "Normal",
             group_1_event < group_2_event ~ "Early as control",
             .default = "Late as control"
           )
         ) |>
-        select(group_1_name, group_2_name, did_type, did, did_weight)
+        select(
+          group_1_name, group_2_name,
+          did_type, did, did_weight
+          # did_coef, pure_size_coef, variance_size_coef, variance_treatment_coef
+        )
     })
 
     output$global_analytic_decomposition <- renderUI({
       withMathJaxLocal(HTML(paste0(
         "$$",
-        "\\beta = \\sum_{k, l} s_{k,l}^k \\beta_{k,l}^{k} = ",
+        "\\beta = \\frac{\\sum_{k, l} s_{k,l}^k \\beta_{k,l}^{k}}{\\sum_{k,l} s_{k,l}^k} = ",
         goodman_bacon_df() |>
           summarize(result = sum(did * did_weight)) |>
           pull(result),
