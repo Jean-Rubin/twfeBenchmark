@@ -23,7 +23,7 @@ model_UI <- function(id) {
           eventStudyParameters_UI(ns("params_model_event")),
           actionButton(ns("fit_model_event"), "Fit model")
         ),
-        mainPanel(gt::gt_output(ns("model_formula_event")))
+        mainPanel(plotOutput(ns("plot_coefs_model_event")))
       )
     ),
     tabPanel(
@@ -37,7 +37,7 @@ model_UI <- function(id) {
           ),
           actionButton(ns("fit_model_iw"), "Fit model")
         ),
-        mainPanel(gt::gt_output(ns("model_formula_iw")))
+        mainPanel(plotOutput(ns("model_formula_iw")))
       )
     )
   )
@@ -62,10 +62,23 @@ model_Server <- function(id, data_ind) {
       event_study_model(data_ind(), params_model_event())
     })
 
-    output$model_formula_event <- gt::render_gt({
+    output$plot_coefs_model_event <- renderPlot({
       model_fitted_event() |>
-        gtsummary::tbl_regression() |>
-        gtsummary::as_gt()
+        broom::tidy() |>
+        mutate(
+          term = stringr::str_remove(term, "t_rel::"),
+          term = factor(term, levels = get_leads_lags_names(params_model_event())),
+          estimate_low = estimate - std.error,
+          estimate_high = estimate + std.error
+        ) |>
+        ggplot(aes(x = term, y = estimate)) +
+        geom_pointrange(aes(y = estimate, ymin = estimate_low, ymax = estimate_high)) +
+        scale_x_discrete(drop = FALSE) +
+        labs(
+          x = "Relative Time",
+          y = "Estimate"
+        ) +
+        theme_common()
     }) |>
       bindEvent(input$fit_model_event)
 
@@ -73,13 +86,25 @@ model_Server <- function(id, data_ind) {
       iw_model(data_ind())
     })
 
-    output$model_formula_iw <- gt::render_gt({
+    output$model_formula_iw <- renderPlot({
       model_fitted_iw() |>
-        gtsummary::tbl_regression() |>
-        gtsummary::as_gt()
+        broom::tidy() |>
+        mutate(
+          term = stringr::str_remove(term, "t_rel::"),
+          term = factor(term, levels = -4:4),
+          estimate_low = estimate - std.error,
+          estimate_high = estimate + std.error
+        ) |>
+        ggplot(aes(x = term, y = estimate)) +
+        geom_pointrange(aes(y = estimate, ymin = estimate_low, ymax = estimate_high)) +
+        scale_x_discrete(drop = FALSE) +
+        labs(
+          x = "Relative Time",
+          y = "Estimate"
+        ) +
+        theme_common()
     }) |>
       bindEvent(input$fit_model_iw)
 
   })
 }
-

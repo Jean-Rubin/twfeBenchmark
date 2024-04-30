@@ -26,7 +26,15 @@ iw_model <- function(data_ind) {
       "Treated_2" = as.numeric(group == "Treated 2")
     )
 
-  relative_time <- -9:9
+  relative_time <- -4:4
+  data_renamed <- data_renamed |>
+    mutate(t_rel = t - event) |>
+    filter(t_rel %in% c(relative_time, -Inf)) |>
+    group_by(ind) |>
+    filter(all(relative_time %in% t_rel) || all(is.infinite(t_rel))) |>
+    ungroup()
+
+
   relative_time_vars <- paste0("`Relative Time_", relative_time, "`")
   treated_vars <- c("Treated_1", "Treated_2")
   interaction_vars <- tidyr::crossing(treated_vars, relative_time_vars) |>
@@ -38,5 +46,6 @@ iw_model <- function(data_ind) {
     paste(interaction_vars, collapse = " + ")
   )
 
-  lm(formula_char, data = data_renamed)
+  # lm(formula_char, data = data_renamed)
+  fixest::feols(y ~ sunab(event, t_rel, ref.p = -4) | `Individual FE` + `Temporal FE`, data = data_renamed)
 }
