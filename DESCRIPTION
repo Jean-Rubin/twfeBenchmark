@@ -15,6 +15,7 @@ Imports:
     purrr,
     shiny,
     shinyjs,
+    sortable,
     tidyr
 RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
