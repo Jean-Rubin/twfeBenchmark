@@ -1,45 +1,54 @@
 controlParameters_UI <- function(id) {
   ns <- NS(id)
-  tagList(
-    sliderInput(
-      ns("size"),
-      "Control size",
-      min = 1,
-      max = 5,
-      value = 1,
-      step = 1
+  accordion(
+    accordion_panel(
+      "Size", icon = bsicons::bs_icon("sliders"),
+      sliderInput(
+        ns("size"),
+        "Control size",
+        min = 1,
+        max = 5,
+        value = 1,
+        step = 1
+      )
     ),
-    sliderInput(
-      ns("slope_trend"),
-      "Slope trend",
-      min = 0,
-      max = 1,
-      value = 0.5,
-      step = 0.25
+    accordion_panel(
+      "Polynomial Trend", icon = bsicons::bs_icon("sliders"),
+      sliderInput(
+        ns("slope_trend"),
+        "Slope trend",
+        min = 0,
+        max = 1,
+        value = 0.5,
+        step = 0.25
+      ),
+      sliderInput(
+        ns("quadratic_trend"),
+        "Quadratic trend",
+        min = -0.1,
+        max = 0.1,
+        value = 0,
+        step = 0.05
+      )
     ),
-    sliderInput(
-      ns("quadratic_trend"),
-      "Quadratic trend",
-      min = -0.1,
-      max = 0.1,
-      value = 0,
-      step = 0.05
-    ),
-    sliderInput(
-      ns("oscillation_amplitude_trend"),
-      "Oscillation amplitude trend",
-      min = 0,
-      max = 10,
-      value = 0,
-      step = 1
-    ),
-    sliderInput(
-      ns("oscillation_frequency_trend"),
-      "Oscillation frequency trend",
-      min = 0,
-      max = 5,
-      value = 0,
-      step = 0.5
+    accordion_panel(
+      "Oscillation Trend", icon = bsicons::bs_icon("sliders"),
+      sliderInput(
+        ns("oscillation_amplitude_trend"),
+        "Oscillation amplitude trend",
+        min = 0,
+        max = 10,
+        value = 0,
+        step = 1
+      ),
+      sliderInput(
+        ns("oscillation_frequency_trend"),
+        "Oscillation frequency trend",
+        min = 0,
+        max = 5,
+        value = 0,
+        step = 0.5
+      )
     )
   )
 }

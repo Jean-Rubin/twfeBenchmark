@@ -9,5 +9,5 @@
 #' @name twfeBenchmark
 #' @docType package
 #' @keywords internal
-#' @import shiny ggplot2 dplyr grid scales grDevices
+#' @import shiny bslib ggplot2 dplyr grid scales grDevices
 "_PACKAGE"

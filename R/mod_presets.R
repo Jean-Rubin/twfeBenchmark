@@ -1,7 +1,7 @@
 presets_UI <- function(id) {
   ns <- NS(id)
-  tabsetPanel(
-    tabPanel(
+  navset_tab(
+    nav_panel(
       "One group",
       sidebarLayout(
         sidebarPanel(
@@ -20,7 +20,7 @@ presets_UI <- function(id) {
         )
       )
     ),
-    tabPanel(
+    nav_panel(
       "Two groups",
       sidebarLayout(
         sidebarPanel(
@@ -73,7 +73,7 @@ presets_UI <- function(id) {
         )
       )
     ),
-    tabPanel(
+    nav_panel(
       "Dynamic Treatment",
       sidebarLayout(
         sidebarPanel(
@@ -141,11 +141,11 @@ presets_Server <- function(id, parent_session) {
       updateTabsetPanel(
         session = parent_session,
         "parameters_tabset",
-        selected = "set_parameters"
+        selected = "outcome_plot"
       )
       shinyjs::delay(50, shinyjs::click("parameters-reset_treated", asis = TRUE))
-      shinyjs::delay(250, shinyjs::click("parameters-add_treated", asis = TRUE))
-      shinyjs::delay(500, update_preset_1(isolate(1 - update_preset_1())))
+      shinyjs::delay(2000, shinyjs::click("parameters-add_treated", asis = TRUE))
+      shinyjs::delay(3000, update_preset_1(isolate(1 - update_preset_1())))
     }) |>
       bindEvent(input$preset_1)
 
@@ -155,12 +155,12 @@ presets_Server <- function(id, parent_session) {
       updateTabsetPanel(
         session = parent_session,
         "parameters_tabset",
-        selected = "set_parameters"
+        selected = "outcome_plot"
       )
       shinyjs::delay(50, shinyjs::click("parameters-reset_treated", asis = TRUE))
-      shinyjs::delay(250, shinyjs::click("parameters-add_treated", asis = TRUE))
-      shinyjs::delay(500, shinyjs::click("parameters-add_treated", asis = TRUE))
-      shinyjs::delay(750, update_preset_2(isolate(1 - update_preset_2())))
+      shinyjs::delay(2000, shinyjs::click("parameters-add_treated", asis = TRUE))
+      shinyjs::delay(3000, shinyjs::click("parameters-add_treated", asis = TRUE))
+      shinyjs::delay(4000, update_preset_2(isolate(1 - update_preset_2())))
     }) |>
       bindEvent(input$preset_2)
 
@@ -199,12 +199,12 @@ presets_Server <- function(id, parent_session) {
       updateTabsetPanel(
         session = parent_session,
         "parameters_tabset",
-        selected = "set_parameters"
+        selected = "outcome_plot"
       )
       shinyjs::delay(50, shinyjs::click("parameters-reset_treated", asis = TRUE))
-      shinyjs::delay(200, shinyjs::click("parameters-add_treated", asis = TRUE))
-      shinyjs::delay(800, shinyjs::click("parameters-add_treated", asis = TRUE))
-      shinyjs::delay(1200, update_preset_3(isolate(1 - update_preset_3())))
+      shinyjs::delay(2000, shinyjs::click("parameters-add_treated", asis = TRUE))
+      shinyjs::delay(3000, shinyjs::click("parameters-add_treated", asis = TRUE))
+      shinyjs::delay(4000, update_preset_3(isolate(1 - update_preset_3())))
     }) |>
       bindEvent(input$preset_3)
 

@@ -9,40 +9,47 @@
 #' @examples
 #' \dontrun{run_twfe_app()}
 run_twfe_app <- function(...) {
-  ui <- fluidPage(
-    shinyjs::useShinyjs(),
-    withMathJaxLocal(),
-    titlePanel("Two-Way Fixed Effect Estimator"),
-    tabsetPanel(id = "parameters_tabset",
-      tabPanel("Presets", presets_UI("presets")),
-      tabPanel("Set Parameters",
-        sidebarLayout(
-          sidebarPanel(
-            h3("Parameters", style = "margin-top: 0;"),
-            multiParameters_UI("parameters")
-          ),
-          mainPanel(plotOutput("event_plot"))
-        ),
-        value = "set_parameters"
+  ui <- page_navbar(
+    id = "parameters_tabset",
+    title = "Two-Way Fixed Effect Estimator",
+    sidebar = sidebar(
+      width = 275,
+      title = "Parameters",
+      multiParameters_UI("parameters")
+    ),
+    theme = bs_theme(
+      bootswatch = "zephyr"
+    ),
+    header = tagList(
+      shinyjs::useShinyjs(),
+      withMathJaxLocal()
+    ),
+    nav_panel("Presets", presets_UI("presets")),
+    nav_panel("Analysis",
+      value = "outcome_plot",
+      accordion(
+        accordion_panel("Outcome Plot",
+        plotOutput("event_plot")
       ),
-      tabPanel("Debug: Data Generated",
-        column(6,
-          h3("Data event group"),
+      navset_card_underline(id = "model_tabset",
+        selected = "model",
+        nav_panel("Theory", theory_UI("theory"), value = "theory"),
+        nav_panel("Regression", model_UI("model"), value = "model")
+      )
+    )),
+    nav_panel("Debug: Data Generated",
+      layout_columns(
+        card(
+          full_screen = TRUE,
+          card_header("Data event group"),
           tableOutput("data_event_table")
         ),
-        column(6,
-          h3("Data individual"),
+        card(
+          full_screen = TRUE,
+          card_header("Data individual"),
           tableOutput("data_ind_table")
         )
-      )
-    ),
-    h2("Model"),
-    div(
-      tabsetPanel(id = "model_tabset",
-        tabPanel("Theory", theory_UI("theory")),
-        tabPanel("Regression", model_UI("model"))
       ),
-      style = "margin-bottom: 20vh;"
     )
   )
 

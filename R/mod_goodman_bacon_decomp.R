@@ -1,11 +1,21 @@
 goodmanBaconDecomp_UI <- function(id) {
   ns <- NS(id)
 
-  tabsetPanel(
-    tabPanel("Pairwise Comparison",
-      sidebarLayout(
-        sidebarPanel(
-          h3("Groups", style = "margin-top: 0;"),
+  navset_tab(
+    nav_panel("Global Overview",
+      layout_columns(
+        card(
+          card_header("Estimation"),
+          uiOutput(ns("global_analytic_decomposition")),
+          tableOutput(ns("global_decomposition"))
+        ),
+        plotOutput(ns("global_plot"))
+      )
+    ),
+    nav_panel("Pairwise Comparison",
+      layout_sidebar(
+        sidebar = sidebar(
+          title = "Groups",
           selectInput(ns("select_group_1"),
             "Select first group",
             choices = pp_col("control")
@@ -15,27 +25,19 @@ goodmanBaconDecomp_UI <- function(id) {
             choices = pp_col("control")
           )
         ),
-        mainPanel(
-          column(6,
+        layout_columns(
+          card(
+            full_screen = TRUE,
+            card_header("Effect of first group using second group as control"),
             plotOutput(ns("pairwise_plot_1")),
-            uiOutput(ns("pairwise_analytic_decomposition_1"))
+            card_footer(uiOutput(ns("pairwise_analytic_decomposition_1")))
           ),
-          column(6,
+          card(
+            full_screen = TRUE,
+            card_header("Effect of second group using first group as control"),
             plotOutput(ns("pairwise_plot_2")),
-            uiOutput(ns("pairwise_analytic_decomposition_2"))
+            card_footer(uiOutput(ns("pairwise_analytic_decomposition_2")))
           )
-        )
-      )
-    ),
-    tabPanel("Global Overview",
-      sidebarLayout(
-        sidebarPanel(
-          h3("Estimation", style = "margin-top: 0;"),
-          uiOutput(ns("global_analytic_decomposition")),
-          tableOutput(ns("global_decomposition"))
-        ),
-        mainPanel(
-          plotOutput(ns("global_plot"))
         )
       )
     )

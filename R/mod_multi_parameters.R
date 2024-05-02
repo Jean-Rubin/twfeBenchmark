@@ -7,8 +7,8 @@ multiParameters_UI <- function(id) {
     actionButton(ns("reset_treated"),
       "Remove All Treated", class = "btn-danger", icon = icon("sync")
     ),
-    tabsetPanel(id = ns("parameters"),
-      tabPanel("Control", value = "tab_control",
+    navset_tab(id = ns("parameters"),
+      nav_panel("Control", value = "tab_control",
         controlParameters_UI(ns("control_parameters"))
       )
     )
@@ -31,7 +31,7 @@ multiParameters_Server <- function(id, max_treated = 10L) {
       n <- min(treated_id_pool())
       insertTab(
         "parameters",
-        tabPanel(paste("Treated", n), value = ns_treated("tab", n),
+        nav_panel(paste("Treated", n), value = ns_treated("tab", n),
           dataParameters_UI(ns(ns_treated("params", n))),
           actionButton(ns(ns_treated("remove", n)),
             "Remove Treated", class = "btn-danger", icon = icon("minus")

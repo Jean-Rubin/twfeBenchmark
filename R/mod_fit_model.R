@@ -1,7 +1,7 @@
 model_UI <- function(id) {
   ns <- NS(id)
-  tabsetPanel(
-    tabPanel(
+  navset_tab(
+    nav_panel(
       "Difference in Difference",
       sidebarLayout(
         sidebarPanel(
@@ -11,7 +11,7 @@ model_UI <- function(id) {
         mainPanel(gt::gt_output(ns("model_formula")))
       )
     ),
-    tabPanel(
+    nav_panel(
       "Event Study",
       sidebarLayout(
         sidebarPanel(
@@ -26,7 +26,7 @@ model_UI <- function(id) {
         mainPanel(plotOutput(ns("plot_coefs_model_event")))
       )
     ),
-    tabPanel(
+    nav_panel(
       "Interaction-Weighted",
       sidebarLayout(
         sidebarPanel(
