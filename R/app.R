@@ -24,6 +24,7 @@ run_twfe_app <- function(...) {
       shinyjs::useShinyjs(),
       withMathJaxLocal()
     ),
+    nav_panel("Purpose", overview_UI("presentation")),
     nav_panel("Presets", presets_UI("presets")),
     nav_panel("Analysis",
       value = "outcome_plot",
